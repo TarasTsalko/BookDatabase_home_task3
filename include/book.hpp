@@ -1,5 +1,6 @@
 #pragma once
 
+#include <flat_map>
 #include <format>
 #include <stdexcept>
 #include <string_view>
@@ -11,8 +12,35 @@ enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 // Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
 
 constexpr Genre GenreFromString(std::string_view s) {
-    // Ваш код здесь
+
+    using bookdb::Genre;
+    const std::flat_map<std::string_view, bookdb::Genre> m = {{"Fiction", Genre::Fiction},
+                                                              {"NonFiction", Genre::NonFiction},
+                                                              {"SciFi", Genre::SciFi},
+                                                              {"Biography", Genre::Biography},
+                                                              {"Mystery", Genre::Mystery}};
+    if (auto it = m.find(s); it != m.end())
+        return it->second;
     return Genre::Unknown;
+}
+
+// Функция не constexpЮ так как может выбрасить исключение
+std::string StringFromGenre(Genre g) {
+    std::string genre_str;
+    // clang-format off
+    using bookdb::Genre;
+    switch (g) {
+        case Genre::Fiction:    genre_str = "Fiction"; break;
+        case Genre::Mystery:    genre_str = "Mystery"; break;
+        case Genre::NonFiction: genre_str = "NonFiction"; break;
+        case Genre::SciFi:      genre_str = "SciFi"; break;
+        case Genre::Biography:  genre_str = "Biography"; break;
+        case Genre::Unknown:    genre_str = "Unknown"; break;
+        default:
+            throw std::logic_error{"Unsupported bookdb::Genre"};
+        }
+    // clang-format on
+    return genre_str;
 }
 
 struct Book {
@@ -26,6 +54,14 @@ struct Book {
     int read_count;
 
     // Ваш код для конструкторов здесь
+    constexpr Book(std::string_view author_, const std::string &title_, int year_, Genre genre_, double rating_,
+                   int read_count_)
+        : author(author_), title(title_), year(year_), genre(genre_), rating(rating_), read_count(read_count_) {}
+
+    constexpr Book(std::string_view author_, const std::string &title_, int year_, std::string_view genre_,
+                   double rating_, int read_count_)
+        : author(author_), title(title_), year(year_), genre(GenreFromString(genre_)), rating(rating_),
+          read_count(read_count_) {}
 };
 }  // namespace bookdb
 
@@ -34,21 +70,7 @@ template <>
 struct formatter<bookdb::Genre, char> {
     template <typename FormatContext>
     auto format(const bookdb::Genre g, FormatContext &fc) const {
-        std::string genre_str;
-
-        // clang-format off
-        using bookdb::Genre;
-        switch (g) {
-            case Genre::Fiction:    genre_str = "Fiction"; break;
-            case Genre::Mystery:    genre_str = "Mystery"; break;
-            case Genre::NonFiction: genre_str = "NonFiction"; break;
-            case Genre::SciFi:      genre_str = "SciFi"; break;
-            case Genre::Biography:  genre_str = "Biography"; break;
-            case Genre::Unknown:    genre_str = "Unknown"; break;
-            default:
-                throw logic_error{"Unsupported bookdb::Genre"};
-            }
-        // clang-format on
+        const std::string genre_str = bookdb::StringFromGenre(g);
         return format_to(fc.out(), "{}", genre_str);
     }
 
@@ -58,5 +80,21 @@ struct formatter<bookdb::Genre, char> {
 };
 
 // Ваш код для std::formatter<Book> здесь
+template <>
+struct formatter<bookdb::Book, char> {
+    template <typename FormatContext>
+    auto format(const bookdb::Book b, FormatContext &fc) const {
+        const std::string_view format_template = "title : {}, Author : {}, year : {}, "
+                                                 "genre : {}, rating : {}, read_count : {} ";
+        const std::string genre_str = bookdb::StringFromGenre(b.genre);
+        const std::string book_str = std::vformat(
+            format_template, std::make_format_args(b.title, b.author, b.year, genre_str, b.rating, b.read_count));
+        return format_to(fc.out(), "{}", book_str);
+    }
+
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();  // Просто игнорируем пользовательский формат
+    }
+};
 
 }  // namespace std
