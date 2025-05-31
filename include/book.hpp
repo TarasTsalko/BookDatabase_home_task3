@@ -54,11 +54,11 @@ struct Book {
     int read_count;
 
     // Ваш код для конструкторов здесь
-    constexpr Book(std::string_view author_, const std::string &title_, int year_, Genre genre_, double rating_,
+    constexpr Book(const std::string &title_, std::string_view author_, int year_, Genre genre_, double rating_,
                    int read_count_)
         : author(author_), title(title_), year(year_), genre(genre_), rating(rating_), read_count(read_count_) {}
 
-    constexpr Book(std::string_view author_, const std::string &title_, int year_, std::string_view genre_,
+    constexpr Book(const std::string &title_, std::string_view author_, int year_, std::string_view genre_,
                    double rating_, int read_count_)
         : author(author_), title(title_), year(year_), genre(GenreFromString(genre_)), rating(rating_),
           read_count(read_count_) {}
