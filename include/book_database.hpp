@@ -43,8 +43,8 @@ public:
     iterator begin() noexcept { return books_.begin(); }
     iterator end() noexcept { return books_.end(); };
 
-    const_iterator cbegin() noexcept { return books_.begin(); }
-    const_iterator cend() noexcept { return books_.end(); };
+    const_iterator cbegin() const noexcept { return books_.begin(); }
+    const_iterator cend() const noexcept { return books_.end(); };
 
     constexpr void PushBack(const value_type &_val) {
         authors_.insert(_val.author);
