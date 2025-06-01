@@ -98,7 +98,7 @@ auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
     size_t max_value = cont.size() - 1;
     for (size_t i = 0; i < N; i++) {
         const size_t random_index = min_value + (generator() % (max_value - min_value + 1));
-        assert(random_index < max_value);
+        assert(random_index <= max_value);
         results.emplace_back(*(cont.cbegin() + random_index));
     }
     return results;

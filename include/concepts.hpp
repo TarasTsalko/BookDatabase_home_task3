@@ -16,6 +16,7 @@ concept BookContainerLike = requires(T cont) {
     typename T::const_iterator;
     typename T::reference;
     typename T::value_type;
+    typename T::reverse_iterator;
     cont.begin();
     cont.end();
     cont.cbegin();

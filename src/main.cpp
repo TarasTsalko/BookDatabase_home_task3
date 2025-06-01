@@ -69,7 +69,7 @@ int main() {
     }
 
     const std::string author = "William Golding";
-    if (db.hasAuthor(author))
+    if (db.HasAuthor(author))
         std::print("\n\nThere are books by {} in the database\n", author);
 
     /*

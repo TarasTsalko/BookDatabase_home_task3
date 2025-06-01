@@ -20,6 +20,7 @@ class BookDatabase {
 public:
     // Type aliases
     using iterator = typename BookContainer::iterator;
+    using reverse_iterator = typename BookContainer::reverse_iterator;
     using const_iterator = typename BookContainer::const_iterator;
     using value_type = typename BookContainer::value_type;
     using reference = typename BookContainer::reference;
@@ -30,7 +31,6 @@ public:
         books_.insert(end(), _l);
         std::transform(begin(), end(), std::inserter(authors_, authors_.end()),
                        [](const auto &book) { return book.author; });
-        assert(books_.size() == authors_.size());
     }
 
     void Clear() {
@@ -45,6 +45,9 @@ public:
 
     const_iterator cbegin() const noexcept { return books_.begin(); }
     const_iterator cend() const noexcept { return books_.end(); };
+
+    reverse_iterator rbegin() noexcept { return books_.rbegin(); }
+    reverse_iterator rend() noexcept { return books_.rend(); };
 
     constexpr void PushBack(const value_type &_val) {
         authors_.insert(_val.author);
@@ -69,7 +72,7 @@ public:
 
     size_t size() const { return books_.size(); }
 
-    bool hasAuthor(const std::string &author) const { return authors_.find(author) != authors_.end(); }
+    bool HasAuthor(const std::string &author) const { return authors_.find(author) != authors_.end(); }
 
     // Ваш код здесь
 
