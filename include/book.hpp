@@ -25,7 +25,7 @@ constexpr Genre GenreFromString(std::string_view s) {
 }
 
 // Функция не constexpЮ так как может выбрасить исключение
-std::string StringFromGenre(Genre g) {
+inline std::string StringFromGenre(Genre g) {
     std::string genre_str;
     // clang-format off
     using bookdb::Genre;
