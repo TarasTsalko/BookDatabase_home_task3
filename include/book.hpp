@@ -65,6 +65,8 @@ struct Book {
         : author(author_), title(title_), year(year_), genre(GenreFromString(genre_)), rating(rating_),
           read_count(read_count_) {}
 };
+
+using constBookRef = std::reference_wrapper<const Book>;
 }  // namespace bookdb
 
 namespace std {

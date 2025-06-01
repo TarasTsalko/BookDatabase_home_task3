@@ -4,13 +4,11 @@
 #include <cassert>
 #include <cstddef>
 #include <flat_map>
-#include <functional>
 #include <iterator>
 #include <numeric>
 #include <random>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 
 #include "book.hpp"
 #include "book_database.hpp"
@@ -28,7 +26,6 @@ template <typename Comparator>
 using genreRatingMapImpl = std::flat_map<std::string, std::pair<double, size_t>, Comparator>;
 template <typename Comparator>
 using genreRatingMap = std::flat_map<std::string, double, Comparator>;
-using constBookRef = std::reference_wrapper<const Book>;
 
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
 auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {}) {

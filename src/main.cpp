@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <format>
 #include <print>
 
@@ -22,8 +23,6 @@ int main() {
 
     // Create a book database
     BookDatabase<std::vector<Book>> db;
-
-    // Код закомментирован, чтобы не приводить к ошибке компиляции
 
     // Add some books
     db.EmplaceBack("1984", "George Orwell", 1949, Genre::SciFi, 4., 190);
@@ -72,12 +71,12 @@ int main() {
     if (db.HasAuthor(author))
         std::print("\n\nThere are books by {} in the database\n", author);
 
-    /*
-    // Filters
-    auto filtered = filterBooks(db.begin(), db.end(), all_of(YearBetween(1900, 1999), RatingAbove(4.5)));
-    std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
-    std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
-    */
+    {
+        auto comp = all_of(YearBetween(1900, 1999), RatingAbove(4.5));
+        auto filtered = filterBooks(db.begin(), db.end(), comp);
+        std::print("\n\nBooks from the 20th century with rating ≥ 4.5:\n");
+        std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
+    }
 
     return 0;
 }
