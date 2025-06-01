@@ -106,7 +106,7 @@ auto getTopNBy(BookDatabase<T> &cont, size_t N, Comparator comp) {
     if (cont.size() < N)
         throw std::runtime_error(std::format(
             "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
-    std::stable_sort(cont.begin(), cont.begin(), comp);
+    std::stable_sort(cont.begin(), cont.end(), comp);
     return std::vector<constBookRef>(cont.begin(), cont.begin() + N);
 }
 
@@ -137,7 +137,7 @@ struct formatter<bookdb::genreRatingMap<bookdb::TransparentStringLess>, char> {
         for (const auto &val : m) {
             const std::string &genre_str = val.first;
             const double rating = val.second;
-            format_to(fc.out(), "Genre : {} avg rating {} :\n", genre_str, rating);
+            format_to(fc.out(), "Genre : {} avg rating : {}\n", genre_str, rating);
         }
         return fc.out();
     }

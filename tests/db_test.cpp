@@ -1,7 +1,9 @@
 #include "book.hpp"
+#include <cstddef>
 #include <gtest/gtest.h>
 
 #include "comparators.hpp"
+#include "filters.hpp"
 #include "statsistics.hpp"
 #include <book_database.hpp>
 #include <string>
@@ -131,4 +133,47 @@ TEST(TesDataBase, CalculateGenreRatingsTest) {
     EXPECT_EQ(genreRatings.begin()->first, "Fiction");
     EXPECT_DOUBLE_EQ(genreRatings.begin()->second, 4.5666666666666664);
     EXPECT_EQ(genreRatings.size(), 2);
+}
+
+TEST(TesDataBase, FilterWith_ALL_Of_Test) {
+    auto db = InitDataBase();
+    auto comp = all_of(YearBetween(1900, 1999), RatingAbove(4.5));
+    auto filtered = filterBooks(db.begin(), db.end(), comp);
+    EXPECT_EQ(filtered.size(), 1);
+    EXPECT_EQ(filtered.begin()->get().author, "Harper Lee");
+    EXPECT_EQ(filtered.begin()->get().title, "To Kill a Mockingbird");
+}
+
+TEST(TesDataBase, FilterWith_Any_Of_Test) {
+
+    auto db = InitDataBase();
+    auto comp = any_of(YearBetween(1900, 1999), RatingAbove(4.5));
+    auto filtered = filterBooks(db.begin(), db.end(), comp);
+    EXPECT_EQ(filtered.size(), 4);
+    EXPECT_EQ(filtered.begin()->get().author, "George Orwell");
+    EXPECT_EQ(filtered.begin()->get().title, "1984");
+
+    EXPECT_EQ(filtered.rbegin()->get().author, "Harper Lee");
+    EXPECT_EQ(filtered.rbegin()->get().title, "To Kill a Mockingbird");
+}
+
+TEST(TesDataBase, SampleRandomBooksTest) {
+
+    const size_t N = 3;
+    auto db = InitDataBase();
+    auto randomBooks = sampleRandomBooks(db, N);
+    EXPECT_EQ(randomBooks.size(), N);
+}
+
+TEST(TesDataBase, GetTopNByTest) {
+
+    const size_t N = 2;
+    auto db = InitDataBase();
+    auto topBooks = getTopNBy(db, N, comp::LessByRating{});
+    EXPECT_EQ(topBooks.size(), N);
+    EXPECT_EQ(topBooks.begin()->get().author, "Harper Lee");
+    EXPECT_EQ(topBooks.begin()->get().title, "To Kill a Mockingbird");
+
+    EXPECT_EQ(topBooks.rbegin()->get().author, "F. Scott Fitzgerald");
+    EXPECT_EQ(topBooks.rbegin()->get().title, "The Great Gatsby");
 }
