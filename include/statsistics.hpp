@@ -14,6 +14,7 @@
 
 #include "book.hpp"
 #include "book_database.hpp"
+#include "concepts.hpp"
 
 #include <print>
 #include <utility>
@@ -84,6 +85,7 @@ auto calculateAverageRating(BookDatabase<T> &cont) {
 }
 
 template <BookContainerLike T>
+    requires BookIterator<typename T::const_iterator>
 auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
     if (cont.size() < N)
         throw std::runtime_error(std::format(
@@ -102,7 +104,7 @@ auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
     return results;
 }
 
-template <BookContainerLike T, typename Comparator>
+template <BookContainerLike T, BookComparator Comparator>
 auto getTopNBy(BookDatabase<T> &cont, size_t N, Comparator comp) {
     if (cont.size() < N)
         throw std::runtime_error(std::format(

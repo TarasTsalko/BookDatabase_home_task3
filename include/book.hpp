@@ -53,6 +53,8 @@ struct Book {
     double rating;
     int read_count;
 
+    auto operator<=>(const Book &rhv) const = default;
+
     // Ваш код для конструкторов здесь
     constexpr Book(const std::string &title_, std::string_view author_, int year_, Genre genre_, double rating_,
                    int read_count_)
