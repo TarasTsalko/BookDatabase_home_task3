@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <format>
+#include <print>
 
 #include "book.hpp"
 #include "book_database.hpp"
@@ -65,6 +67,10 @@ int main() {
     if (orwellBookIt != db.end()) {
         std::print("\n\nTransparent lookup by authors. Found Orwell's book: {}\n", *orwellBookIt);
     }
+
+    const std::string author = "William Golding";
+    if (db.hasAuthor(author))
+        std::print("\n\nThere are books by {} in the database\n", author);
 
     /*
     // Filters

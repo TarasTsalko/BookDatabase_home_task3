@@ -23,7 +23,7 @@ public:
     using const_iterator = typename BookContainer::const_iterator;
     using value_type = typename BookContainer::value_type;
     using reference = typename BookContainer::reference;
-    using AuthorContainer = std::unordered_set<std::string_view>;
+    using AuthorContainer = std::unordered_set<std::string_view, TransparentStringHash, TransparentStringEqual>;
 
     BookDatabase() = default;
     BookDatabase(std::initializer_list<value_type> _l) {
@@ -68,6 +68,8 @@ public:
     const BookContainer &GetBooks() const noexcept { return books_; }
 
     size_t size() const { return books_.size(); }
+
+    bool hasAuthor(const std::string &author) const { return authors_.find(author) != authors_.end(); }
 
     // Ваш код здесь
 
