@@ -14,6 +14,11 @@ auto all_of(Predicates... preds) {
     return [=](const Book &value) { return (preds(value) && ...); };
 }
 
+template <typename... Predicates>
+auto any_of(Predicates... preds) {
+    return [=](const Book &value) { return (preds(value) || ...); };
+}
+
 inline auto YearBetween(int startPeriudYear, int endPeriudYear) {
     if (startPeriudYear > endPeriudYear)
         throw std::runtime_error(std::format("Invalid date range specified {} : {}\n", startPeriudYear, endPeriudYear));

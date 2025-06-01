@@ -78,5 +78,12 @@ int main() {
         std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
     }
 
+    {
+        auto comp = any_of(YearBetween(1900, 1999), RatingAbove(4.5));
+        auto filtered = filterBooks(db.begin(), db.end(), comp);
+        std::print("\n\nBooks from the 20th century or with rating ≥ 4.5:\n");
+        std::for_each(filtered.cbegin(), filtered.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
+    }
+
     return 0;
 }
