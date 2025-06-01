@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstddef>
 #include <flat_map>
+#include <functional>
 #include <iterator>
 #include <numeric>
 #include <random>
@@ -16,6 +17,7 @@
 
 #include <print>
 #include <utility>
+#include <vector>
 
 namespace bookdb {
 
@@ -25,6 +27,7 @@ template <typename Comparator>
 using genreRatingMapImpl = std::flat_map<std::string, std::pair<double, size_t>, Comparator>;
 template <typename Comparator>
 using genreRatingMap = std::flat_map<std::string, double, Comparator>;
+using constBookRef = std::reference_wrapper<const Book>;
 
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
 auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {}) {
@@ -78,6 +81,34 @@ auto calculateAverageRating(BookDatabase<T> &cont) {
     return std::accumulate(cont.begin(), cont.end(), 0.0,
                            [](double lhv, const auto &rhv) { return lhv + rhv.rating; }) /
            cont.size();
+}
+
+template <BookContainerLike T>
+auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
+    if (cont.size() < N)
+        throw std::runtime_error(std::format(
+            "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
+
+    std::vector<constBookRef> results;
+    results.reserve(N);
+    std::mt19937 generator(std::random_device{}());
+    size_t min_value = 0;
+    size_t max_value = cont.size() - 1;
+    for (size_t i = 0; i < N; i++) {
+        const size_t random_index = min_value + (generator() % (max_value - min_value + 1));
+        assert(random_index < max_value);
+        results.emplace_back(*(cont.cbegin() + random_index));
+    }
+    return results;
+}
+
+template <BookContainerLike T, typename Comparator>
+auto getTopNBy(BookDatabase<T> &cont, size_t N, Comparator comp) {
+    if (cont.size() < N)
+        throw std::runtime_error(std::format(
+            "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
+    std::stable_sort(cont.begin(), cont.begin(), comp);
+    return std::vector<constBookRef>(cont.begin(), cont.begin() + N);
 }
 
 }  // namespace bookdb
