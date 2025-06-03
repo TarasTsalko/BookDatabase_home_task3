@@ -9,17 +9,23 @@
 
 namespace bookdb {
 
-template <typename... Predicates>
+template <BookPredicate... Predicates>
 auto all_of(Predicates... preds) {
-    return [=](const Book &value) { return (preds(value) && ...); };
+    auto preds_tuple = std::make_tuple(std::forward<Predicates>(preds)...);
+    return [p = std::move(preds_tuple)](const Book &value) {
+        return std::apply([&](auto &&...pred) { return (pred(value) && ...); }, p);
+    };
 }
 
-template <typename... Predicates>
+template <BookPredicate... Predicates>
 auto any_of(Predicates... preds) {
-    return [=](const Book &value) { return (preds(value) || ...); };
+    auto preds_tuple = std::make_tuple(std::forward<Predicates>(preds)...);
+    return [p = std::move(preds_tuple)](const Book &value) {
+        return std::apply([&](auto &&...pred) { return (pred(value) || ...); }, p);
+    };
 }
 
-inline auto YearBetween(int startPeriudYear, int endPeriudYear) {
+constexpr auto YearBetween(int startPeriudYear, int endPeriudYear) {
     if (startPeriudYear > endPeriudYear)
         throw std::runtime_error(std::format("Invalid date range specified {} : {}\n", startPeriudYear, endPeriudYear));
 
@@ -28,17 +34,17 @@ inline auto YearBetween(int startPeriudYear, int endPeriudYear) {
     };
 }
 
-inline auto RatingAbove(double rating) {
+constexpr auto RatingAbove(double rating) {
     return [rating](const Book &book) { return book.rating > rating; };
 }
 
-inline auto GenreIs(const Genre genre) {
+constexpr auto GenreIs(const Genre genre) {
     return [genre](const Book &book) { return book.genre == genre; };
 }
 
 template <BookIterator T>
-auto filterBooks(T beginIt, T endIt, auto &f) {
-    std::vector<constBookRef> results;
+auto filterBooks(T beginIt, BookSentinel<T> auto endIt, auto &f) {
+    std::vector<ConstBookRef> results;
     results.reserve(std::distance(beginIt, endIt));
     while (beginIt != endIt) {
         if (f(*beginIt))

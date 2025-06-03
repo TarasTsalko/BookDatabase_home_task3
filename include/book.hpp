@@ -9,8 +9,6 @@ namespace bookdb {
 
 enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 
-// Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
-
 constexpr Genre GenreFromString(std::string_view s) {
 
     using bookdb::Genre;
@@ -24,8 +22,7 @@ constexpr Genre GenreFromString(std::string_view s) {
     return Genre::Unknown;
 }
 
-// Функция не constexpЮ так как может выбрасить исключение
-inline std::string StringFromGenre(Genre g) {
+constexpr std::string StringFromGenre(Genre g) {
     std::string genre_str;
     // clang-format off
     using bookdb::Genre;
@@ -66,7 +63,7 @@ struct Book {
           read_count(read_count_) {}
 };
 
-using constBookRef = std::reference_wrapper<const Book>;
+using ConstBookRef = std::reference_wrapper<const Book>;
 }  // namespace bookdb
 
 namespace std {

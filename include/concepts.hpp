@@ -1,6 +1,5 @@
 #pragma once
 
-#include <compare>
 #include <concepts>
 #include <iterator>
 #include <utility>
@@ -34,8 +33,8 @@ concept BookSentinel = std::sentinel_for<S, I>;
 
 // TODO: уточнить у ревьювера где его можно пременит
 template <typename P>
-concept BookPredicate = requires() {
-    { std::declval<Book>() < std::declval<Book>() } -> std::convertible_to<std::strong_ordering>;
+concept BookPredicate = requires(P pred) {
+    { pred(std::declval<Book>()) } -> std::convertible_to<bool>;
 };
 
 template <typename C>

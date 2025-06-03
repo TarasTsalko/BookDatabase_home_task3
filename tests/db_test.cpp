@@ -98,7 +98,7 @@ TEST(TesDataBase, SortByAuthorTest) {
 TEST(TesDataBase, SortByPopularity) {
     auto db = InitDataBase();
     // Sorts
-    std::sort(db.begin(), db.end(), comp::LessByPopularity{});
+    std::sort(db.begin(), db.end(), comp::GreaterByPopularity{});
     EXPECT_EQ(db.begin()->title, "1984");
     EXPECT_EQ(db.rbegin()->title, "The Great Gatsby");
 }
@@ -169,7 +169,7 @@ TEST(TesDataBase, GetTopNByTest) {
 
     const size_t N = 2;
     auto db = InitDataBase();
-    auto topBooks = getTopNBy(db, N, comp::LessByRating{});
+    auto topBooks = getTopNBy(db, N, comp::GreaterByRating{});
     EXPECT_EQ(topBooks.size(), N);
     EXPECT_EQ(topBooks.begin()->get().author, "Harper Lee");
     EXPECT_EQ(topBooks.begin()->get().title, "To Kill a Mockingbird");

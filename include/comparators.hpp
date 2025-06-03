@@ -9,12 +9,12 @@ struct LessByAuthor {
     bool operator()(const Book &lhv, const Book &rhv) const { return lhv.author < rhv.author; }
 };
 
-struct LessByPopularity {
+struct GreaterByPopularity {
     // используем >, так как поплярные книги должны находится в верху контейнера (списка)
     bool operator()(const Book &lhv, const Book &rhv) const { return lhv.read_count > rhv.read_count; }
 };
 
-struct LessByRating {
+struct GreaterByRating {
     bool operator()(const Book &lhv, const Book &rhv) const { return lhv.rating > rhv.rating; }
 };
 

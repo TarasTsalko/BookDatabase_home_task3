@@ -88,7 +88,7 @@ auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
         throw std::runtime_error(std::format(
             "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
 
-    std::vector<constBookRef> results;
+    std::vector<ConstBookRef> results;
     results.reserve(N);
     std::mt19937 generator(std::random_device{}());
     size_t min_value = 0;
@@ -107,7 +107,7 @@ auto getTopNBy(BookDatabase<T> &cont, size_t N, Comparator comp) {
         throw std::runtime_error(std::format(
             "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
     std::stable_sort(cont.begin(), cont.end(), comp);
-    return std::vector<constBookRef>(cont.begin(), cont.begin() + N);
+    return std::vector<ConstBookRef>(cont.begin(), cont.begin() + N);
 }
 
 }  // namespace bookdb

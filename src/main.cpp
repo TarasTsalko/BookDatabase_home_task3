@@ -41,7 +41,7 @@ int main() {
     std::sort(db.begin(), db.end(), comp::LessByAuthor{});
     std::print("Books sorted by author: {}\n\n==================\n", db);
 
-    std::sort(db.begin(), db.end(), comp::LessByPopularity{});
+    std::sort(db.begin(), db.end(), comp::GreaterByPopularity{});
     std::print("Books sorted by popularity: {}\n\n==================\n", db);
 
     auto histogram = buildAuthorHistogramFlat(db);
@@ -54,7 +54,7 @@ int main() {
     std::print("Average books rating in library: {}\n", avrRating);
 
     // Top 3 books
-    auto topBooks = getTopNBy(db, 3, comp::LessByRating{});
+    auto topBooks = getTopNBy(db, 3, comp::GreaterByRating{});
     std::print("\n\nTop 3 books by rating:\n");
     std::for_each(topBooks.cbegin(), topBooks.cend(), [](const auto &v) { std::print("{}\n", v.get()); });
 
