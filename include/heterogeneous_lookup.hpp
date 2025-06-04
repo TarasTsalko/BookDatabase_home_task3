@@ -17,7 +17,7 @@ struct TransparentStringEqual {
     using is_transparent = void;
     auto operator()(std::string_view lhv, const std::string &rhv) const { return lhv == rhv; };
     auto operator()(const std::string &lhv, std::string_view rhv) const { return lhv == rhv; };
-    auto operator()(std::string_view lhv, std::string_view rhv) const { return lhv == rhv; }
+    auto operator()(const std::string lhv, const std::string rhv) const { return lhv == rhv; }
 };
 
 struct TransparentStringHash {

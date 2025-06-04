@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "book.hpp"
@@ -24,13 +25,13 @@ public:
     using const_iterator = typename BookContainer::const_iterator;
     using value_type = typename BookContainer::value_type;
     using reference = typename BookContainer::reference;
-    using AuthorContainer = std::unordered_set<std::string_view, TransparentStringHash, TransparentStringEqual>;
+    using AuthorContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
 
     BookDatabase() = default;
     BookDatabase(std::initializer_list<value_type> _l) {
-        books_.insert(end(), _l);
-        std::transform(begin(), end(), std::inserter(authors_, authors_.end()),
-                       [](const auto &book) { return book.author; });
+
+        books_.reserve(_l.size());
+        std::for_each(_l.begin(), _l.end(), [this](const Book &_val) { PushBack(_val); });
     }
 
     void Clear() {
@@ -50,19 +51,19 @@ public:
     reverse_iterator rend() noexcept { return books_.rend(); };
 
     constexpr void PushBack(const value_type &_val) {
-        authors_.insert(_val.author);
         books_.push_back(_val);
+        CopyAndAdd(books_.back());
     }
 
     constexpr void PushBack(value_type &&_val) {
-        authors_.insert(_val.author);
         books_.push_back(std::move(_val));
+        CopyAndAdd(books_.back());
     }
 
     template <typename... Args>
     constexpr reference EmplaceBack(Args &&...args) {
         reference ref = books_.emplace_back(std::forward<Args>(args)...);
-        authors_.insert(ref.author);
+        CopyAndAdd(ref);
         return ref;
     }
 
@@ -72,9 +73,15 @@ public:
 
     size_t size() const { return books_.size(); }
 
-    bool HasAuthor(const std::string &author) const { return authors_.find(author) != authors_.end(); }
+    bool HasAuthor(std::string_view author) const { return authors_.find(author) != authors_.end(); }
 
     // Ваш код здесь
+private:
+    // функция копируют информацию об авторе и обновляет ссылку в объекте типа Book
+    void CopyAndAdd(Book &ref) {
+        const auto insertRes = authors_.emplace(ref.author);
+        ref.author = *insertRes.first;
+    }
 
 private:
     BookContainer books_;

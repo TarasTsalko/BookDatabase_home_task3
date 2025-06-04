@@ -177,3 +177,77 @@ TEST(TesDataBase, GetTopNByTest) {
     EXPECT_EQ(topBooks.rbegin()->get().author, "F. Scott Fitzgerald");
     EXPECT_EQ(topBooks.rbegin()->get().title, "The Great Gatsby");
 }
+
+TEST(ConstructorDataOwnershipVerificationTest, ConstructorDataOwnershipVerificationTest) {
+    std::string AuthorNameOne = "AuthorNameOne";
+    std::string AuthorNameTwo = "AuthorNameTwo";
+    BookDatabase<BookContainer> db{
+        {"title1", AuthorNameOne, 1, Genre::Biography, 4.1, 210},
+        {"title2", AuthorNameTwo, 2, Genre::Fiction, 4.2, 220},
+        {"title3", AuthorNameOne, 3, Genre::NonFiction, 4.3, 230},
+        {"title4", AuthorNameTwo, 4, Genre::Mystery, 4.4, 240},
+        {"title5", AuthorNameOne, 5, Genre::SciFi, 4.5, 250},
+        {"title6", AuthorNameTwo, 6, Genre::SciFi, 4.6, 260},
+    };
+
+    auto iter = db.cbegin();
+    EXPECT_EQ(AuthorNameOne, iter->author);
+    EXPECT_EQ(AuthorNameTwo, std::next(iter)->author);
+    AuthorNameOne = "AuthorNameOne_and_Suname";
+    AuthorNameTwo = "AuthorNameTwo_and_Suname";
+    EXPECT_NE(AuthorNameOne, iter->author);
+    EXPECT_NE(AuthorNameTwo, std::next(iter)->author);
+}
+
+TEST(PushBackDataOwnershipVerificationTest, PushBackDataOwnershipVerificationTest) {
+    BookDatabase<BookContainer> db;
+    std::string AuthorNameOne = "AuthorNameOne";
+    std::string AuthorNameTwo = "AuthorNameTwo";
+    Book book1{"title1", AuthorNameOne, 1, Genre::Biography, 4.1, 210};
+    Book book2{"title1", AuthorNameTwo, 1, Genre::Biography, 4.2, 220};
+    db.PushBack(book1);
+    db.PushBack(book2);
+    auto iter = db.cbegin();
+    EXPECT_EQ(AuthorNameOne, iter->author);
+    EXPECT_EQ(AuthorNameTwo, std::next(iter)->author);
+    AuthorNameOne = "AuthorNameOne_and_Suname";
+    AuthorNameTwo = "AuthorNameTwo_and_Suname";
+    EXPECT_NE(AuthorNameOne, iter->author);
+    EXPECT_NE(AuthorNameTwo, std::next(iter)->author);
+
+    // проверяем PushBack для правосторонней ссылки
+    AuthorNameOne = "AuthorNameOne";
+    AuthorNameTwo = "AuthorNameTwo";
+
+    // так как book1 и book2 хронят имена авторов как string_view, то переприсваеваем значения
+    book1.author = AuthorNameOne;
+    book2.author = AuthorNameTwo;
+    db.Clear();
+    db.PushBack(std::move(book1));
+    db.PushBack(std::move(book2));
+    iter = db.cbegin();
+    EXPECT_EQ(AuthorNameOne, iter->author);
+    EXPECT_EQ(AuthorNameTwo, std::next(iter)->author);
+    AuthorNameOne = "AuthorNameOne_and_Suname";
+    AuthorNameTwo = "AuthorNameTwo_and_Suname";
+    EXPECT_NE(AuthorNameOne, iter->author);
+    EXPECT_NE(AuthorNameTwo, std::next(iter)->author);
+}
+
+TEST(EmplaceBackkDataOwnershipVerificationTest, EmplaceBackDataOwnershipVerificationTest) {
+    BookDatabase<BookContainer> db;
+    std::string AuthorNameOne = "AuthorNameOne";
+    std::string AuthorNameTwo = "AuthorNameTwo";
+    Book book1{"title1", AuthorNameOne, 1, Genre::Biography, 4.1, 210};
+    Book book2{"title1", AuthorNameTwo, 1, Genre::Biography, 4.2, 220};
+    db.EmplaceBack("title1", AuthorNameOne, 1, Genre::Biography, 4.1, 210);
+    db.EmplaceBack("title1", AuthorNameTwo, 1, Genre::Biography, 4.2, 220);
+
+    auto iter = db.cbegin();
+    EXPECT_EQ(AuthorNameOne, iter->author);
+    EXPECT_EQ(AuthorNameTwo, std::next(iter)->author);
+    AuthorNameOne = "AuthorNameOne_and_Suname";
+    AuthorNameTwo = "AuthorNameTwo_and_Suname";
+    EXPECT_NE(AuthorNameOne, iter->author);
+    EXPECT_NE(AuthorNameTwo, std::next(iter)->author);
+}
