@@ -89,11 +89,21 @@ auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
 
 template <BookContainerLike T, BookComparator Comparator>
 auto getTopNBy(BookDatabase<T> &cont, size_t N, Comparator comp) {
-    if (cont.size() < N)
+    const size_t size = cont.size();
+    if (size < N)
         throw std::runtime_error(std::format(
             "The number of books {} transferred exceeds the number of books in the database {}\n", N, cont.size()));
-    std::stable_sort(cont.begin(), cont.end(), comp);
-    return std::vector<ConstBookRef>(cont.begin(), cont.begin() + N);
+
+    // если количество книг, которые нужно "извлечь" сильно меньше чем книг в базе
+    if (std::log(size) > 2 * N) {
+        std::nth_element(cont.begin(), cont.begin() + N, cont.end(), comp);
+        auto topN = std::vector<ConstBookRef>(cont.begin(), cont.begin() + N);
+        std::stable_sort(topN.begin(), topN.end(), comp);
+        return topN;
+    } else {
+        std::stable_sort(cont.begin(), cont.end(), comp);
+        return std::vector<ConstBookRef>(cont.begin(), cont.begin() + N);
+    }
 }
 
 }  // namespace bookdb
