@@ -22,6 +22,7 @@ concept BookContainerLike = requires(T cont) {
     cont.cend();
     cont.push_back(std::declval<typename T::value_type>());
     cont.emplace_back(std::declval<typename T::value_type>());
+    cont.empty();
 };
 
 template <typename T>

@@ -76,6 +76,8 @@ public:
 
     size_t size() const { return books_.size(); }
 
+    bool empty() const noexcept { return books_.empty(); }
+
     bool HasAuthor(std::string_view author) const { return authors_.find(author) != authors_.end(); }
 
     // Ваш код здесь

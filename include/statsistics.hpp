@@ -69,9 +69,9 @@ auto calculateGenreRatings(T begIt, T endIt, Comparator comp = {}) {
 template <BookContainerLike T>
 auto calculateAverageRating(BookDatabase<T> &cont) {
 
-    return std::accumulate(cont.begin(), cont.end(), 0.0,
-                           [](double lhv, const auto &rhv) { return lhv + rhv.rating; }) /
-           cont.size();
+    const double sum = std::transform_reduce(cont.begin(), cont.end(), 0.0, std::plus<>(),
+                                             [](const auto &item) { return item.rating; });
+    return !cont.empty() ? sum / cont.size() : 0.0;
 }
 
 template <BookContainerLike T>

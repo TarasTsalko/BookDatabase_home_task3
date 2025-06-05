@@ -251,3 +251,10 @@ TEST(EmplaceBackkDataOwnershipVerificationTest, EmplaceBackDataOwnershipVerifica
     EXPECT_NE(AuthorNameOne, iter->author);
     EXPECT_NE(AuthorNameTwo, std::next(iter)->author);
 }
+
+TEST(calculateAverageRatingTest, calculateAverageRatingTest) {
+    auto db = InitDataBase();
+    EXPECT_DOUBLE_EQ(calculateAverageRating(db), 4.425);
+    db.Clear();
+    EXPECT_DOUBLE_EQ(calculateAverageRating(db), 0.0);
+}
