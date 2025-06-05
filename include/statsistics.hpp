@@ -23,8 +23,6 @@ namespace bookdb {
 template <typename Comparator>
 using histogramMap = std::flat_map<std::string, size_t, Comparator>;
 template <typename Comparator>
-using genreRatingMapImpl = std::flat_map<bookdb::Genre, std::pair<double, size_t>, Comparator>;
-template <typename Comparator>
 using genreRatingMap = std::flat_map<bookdb::Genre, double, Comparator>;
 
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
@@ -40,28 +38,35 @@ auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {})
 
 template <BookIterator T, typename Comparator = comp::LessByGenre>
 auto calculateGenreRatings(T begIt, T endIt, Comparator comp = {}) {
-    // Можно решить через std::array, без использовния map, но тогда при изменении enum-а
-    // нужно будет менять и функция
-    genreRatingMapImpl<Comparator> genreRating;
-    while (begIt != endIt) {
-        auto [it, inserted] = genreRating.try_emplace(begIt->genre, begIt->rating, 1);
-        if (!inserted) {
-            double &rating = it->second.first;
-            size_t &count = it->second.second;
-            rating += begIt->rating;
+    class GenreStats {
+    public:
+        GenreStats(double _rating, size_t _count) : total_rating(_rating), count(_count) {}
+
+        void Add(double rating) {
+            total_rating += rating;
             count++;
+        }
+        double Average() const { return count != 0 ? total_rating / count : 0.0; }
+
+    private:
+        double total_rating = 0.0;
+        size_t count = 0;
+    };
+
+    using genreRatingMapImpl = std::flat_map<bookdb::Genre, GenreStats, Comparator>;
+    genreRatingMapImpl genreRating;
+    while (begIt != endIt) {
+        auto [it, inserted] = genreRating.try_emplace(begIt->genre, GenreStats{begIt->rating, 1});
+        if (!inserted) {
+            it->second.Add(begIt->rating);
         }
         begIt++;
     }
 
     genreRatingMap<Comparator> genreRatingOut;
-    std::transform(genreRating.begin(), genreRating.end(), std::inserter(genreRatingOut, genreRatingOut.end()),
-                   [](const genreRatingMapImpl<Comparator>::value_type &val) {
-                       const double rating = val.second.first;
-                       const size_t count = val.second.second;
-                       assert(count != 0);
-                       return std::make_pair(val.first, rating / count);
-                   });
+    std::transform(
+        genreRating.begin(), genreRating.end(), std::inserter(genreRatingOut, genreRatingOut.end()),
+        [](const genreRatingMapImpl::value_type &val) { return std::make_pair(val.first, val.second.Average()); });
 
     return genreRatingOut;
 }

@@ -88,8 +88,7 @@ struct formatter<bookdb::Book, char> {
         const std::string_view format_template = "title : {}, Author : {}, year : {}, "
                                                  "genre : {}, rating : {}, read_count : {} ";
 
-        // genre_str приходится создать, так как std::make_format_arg "требует"  ссылку не на времменый объект, как я
-        // понял
+        // genre_str приходится создать, так как std::make_format_arg "требует"  ссылку не на времменый объект, как я понял
         const std::string genre_str = StringFromGenre(b.genre);
         return format_to(fc.out(), "{}",
                          std::vformat(format_template, std::make_format_args(b.title, b.author, b.year, genre_str,
