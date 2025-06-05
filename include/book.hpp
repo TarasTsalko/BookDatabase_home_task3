@@ -87,10 +87,13 @@ struct formatter<bookdb::Book, char> {
     auto format(const bookdb::Book b, FormatContext &fc) const {
         const std::string_view format_template = "title : {}, Author : {}, year : {}, "
                                                  "genre : {}, rating : {}, read_count : {} ";
-        const std::string genre_str = bookdb::StringFromGenre(b.genre);
-        const std::string book_str = std::vformat(
-            format_template, std::make_format_args(b.title, b.author, b.year, genre_str, b.rating, b.read_count));
-        return format_to(fc.out(), "{}", book_str);
+
+        // genre_str приходится создать, так как std::make_format_arg "требует"  ссылку не на времменый объект, как я
+        // понял
+        const std::string genre_str = StringFromGenre(b.genre);
+        return format_to(fc.out(), "{}",
+                         std::vformat(format_template, std::make_format_args(b.title, b.author, b.year, genre_str,
+                                                                             b.rating, b.read_count)));
     }
 
     constexpr auto parse(format_parse_context &ctx) {
