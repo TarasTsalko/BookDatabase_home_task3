@@ -18,4 +18,8 @@ struct GreaterByRating {
     bool operator()(const Book &lhv, const Book &rhv) const { return lhv.rating > rhv.rating; }
 };
 
+struct LessByGenre {
+    bool operator()(const Genre &lhv, const Genre &rhv) const { return lhv < rhv; }
+};
+
 }  // namespace bookdb::comp
