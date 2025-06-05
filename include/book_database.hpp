@@ -44,8 +44,11 @@ public:
     iterator begin() noexcept { return books_.begin(); }
     iterator end() noexcept { return books_.end(); };
 
-    const_iterator cbegin() const noexcept { return books_.begin(); }
-    const_iterator cend() const noexcept { return books_.end(); };
+    const_iterator begin() const noexcept { return books_.cbegin(); }
+    const_iterator end() const noexcept { return books_.cend(); };
+
+    const_iterator cbegin() const noexcept { return books_.cbegin(); }
+    const_iterator cend() const noexcept { return books_.cend(); };
 
     reverse_iterator rbegin() noexcept { return books_.rbegin(); }
     reverse_iterator rend() noexcept { return books_.rend(); };
