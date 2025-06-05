@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstddef>
 #include <flat_map>
-#include <iterator>
 #include <numeric>
 #include <random>
 #include <stdexcept>
@@ -12,6 +11,7 @@
 
 #include "book.hpp"
 #include "book_database.hpp"
+#include "comparators.hpp"
 #include "concepts.hpp"
 
 #include <print>
@@ -23,36 +23,29 @@ namespace bookdb {
 template <typename Comparator>
 using histogramMap = std::flat_map<std::string, size_t, Comparator>;
 template <typename Comparator>
-using genreRatingMapImpl = std::flat_map<std::string, std::pair<double, size_t>, Comparator>;
+using genreRatingMapImpl = std::flat_map<bookdb::Genre, std::pair<double, size_t>, Comparator>;
 template <typename Comparator>
-using genreRatingMap = std::flat_map<std::string, double, Comparator>;
+using genreRatingMap = std::flat_map<bookdb::Genre, double, Comparator>;
 
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
 auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {}) {
     histogramMap<Comparator> histogram;
-    auto begIt = cont.cbegin();
-    while (begIt != cont.cend()) {
-        auto it = histogram.find(begIt->author);
-        if (it == histogram.end())
-            histogram[std::string(begIt->author)] = 1;
-        else
+    for (const auto &val : cont) {
+        auto [it, inserted] = histogram.try_emplace(std::string(val.author), 1);
+        if (!inserted)
             it->second++;
-        begIt++;
     }
     return histogram;
 }
 
-template <BookIterator T, typename Comparator = TransparentStringLess>
+template <BookIterator T, typename Comparator = comp::LessByGenre>
 auto calculateGenreRatings(T begIt, T endIt, Comparator comp = {}) {
     // Можно решить через std::array, без использовния map, но тогда при изменении enum-а
     // нужно будет менять и функция
     genreRatingMapImpl<Comparator> genreRating;
     while (begIt != endIt) {
-        std::string genreStr = bookdb::StringFromGenre(begIt->genre);
-        auto it = genreRating.find(genreStr);
-        if (it == genreRating.end()) {
-            genreRating[std::move(genreStr)] = std::make_pair(begIt->rating, 1);
-        } else {
+        auto [it, inserted] = genreRating.try_emplace(begIt->genre, begIt->rating, 1);
+        if (!inserted) {
             double &rating = it->second.first;
             size_t &count = it->second.second;
             rating += begIt->rating;
@@ -90,14 +83,7 @@ auto sampleRandomBooks(const BookDatabase<T> &cont, size_t N) {
 
     std::vector<ConstBookRef> results;
     results.reserve(N);
-    std::mt19937 generator(std::random_device{}());
-    size_t min_value = 0;
-    size_t max_value = cont.size() - 1;
-    for (size_t i = 0; i < N; i++) {
-        const size_t random_index = min_value + (generator() % (max_value - min_value + 1));
-        assert(random_index <= max_value);
-        results.emplace_back(*(cont.cbegin() + random_index));
-    }
+    std::sample(cont.begin(), cont.end(), std::back_inserter(results), N, std::mt19937{std::random_device{}()});
     return results;
 }
 
@@ -130,12 +116,12 @@ struct formatter<bookdb::histogramMap<bookdb::TransparentStringLess>, char> {
 };
 
 template <>
-struct formatter<bookdb::genreRatingMap<bookdb::TransparentStringLess>, char> {
+struct formatter<bookdb::genreRatingMap<bookdb::comp::LessByGenre>, char> {
     template <typename FormatContext>
-    auto format(const bookdb::genreRatingMap<bookdb::TransparentStringLess> &m, FormatContext &fc) const {
+    auto format(const bookdb::genreRatingMap<bookdb::comp::LessByGenre> &m, FormatContext &fc) const {
         format_to(fc.out(), "\n");
         for (const auto &val : m) {
-            const std::string &genre_str = val.first;
+            const std::string genre_str = bookdb::StringFromGenre(val.first);
             const double rating = val.second;
             format_to(fc.out(), "Genre : {} avg rating : {}\n", genre_str, rating);
         }

@@ -130,7 +130,7 @@ TEST(TesDataBase, CalculateGenreRatingsByEmptyDataBaseTest) {
 TEST(TesDataBase, CalculateGenreRatingsTest) {
     auto db = InitDataBase();
     auto genreRatings = calculateGenreRatings(db.begin(), db.end());
-    EXPECT_EQ(genreRatings.begin()->first, "Fiction");
+    EXPECT_EQ(genreRatings.begin()->first, Genre::Fiction);
     EXPECT_DOUBLE_EQ(genreRatings.begin()->second, 4.5666666666666664);
     EXPECT_EQ(genreRatings.size(), 2);
 }
