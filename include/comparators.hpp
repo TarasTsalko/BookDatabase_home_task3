@@ -1,9 +1,25 @@
 #pragma once
 
 #include "book.hpp"
+#include <string_view>
 
 namespace bookdb::comp {
 
-struct LessByAuthor {};
+struct LessByAuthor {
+    bool operator()(const Book &lhv, const Book &rhv) const { return lhv.author < rhv.author; }
+};
+
+struct GreaterByPopularity {
+    // используем >, так как поплярные книги должны находится в верху контейнера (списка)
+    bool operator()(const Book &lhv, const Book &rhv) const { return lhv.read_count > rhv.read_count; }
+};
+
+struct GreaterByRating {
+    bool operator()(const Book &lhv, const Book &rhv) const { return lhv.rating > rhv.rating; }
+};
+
+struct LessByGenre {
+    bool operator()(const Genre &lhv, const Genre &rhv) const { return lhv < rhv; }
+};
 
 }  // namespace bookdb::comp
